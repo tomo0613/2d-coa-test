@@ -1,9 +1,13 @@
 import * as Utils from './utils.js';
 
-const vWidth = 512;
-const vHeight = 512;
+const viewSize = 10;
+const viewWidth = 512;
+const viewHeight = 512;
+const aspectRatio = viewWidth / viewHeight;
+const gCamera = new THREE.OrthographicCamera(
+    aspectRatio * -viewSize / 2, aspectRatio * viewSize / 2, viewSize / 2, -viewSize / 2, -1, 1,
+);
 const gScene = new THREE.Scene();
-const gCamera = new THREE.PerspectiveCamera(45, vWidth / vHeight, 1, 100);
 const gClock = new THREE.Clock();
 const gRenderer = new THREE.WebGLRenderer(/*{antialias: true}*/{alpha: true});
 /* gRenderer.gammaFactor = 1.9; */
@@ -11,7 +15,7 @@ gRenderer.gammaOutput = true;
 
 
 let gAnimationMixer;
-gRenderer.setSize(vWidth, vHeight);
+gRenderer.setSize(viewWidth, viewHeight);
 document.body.appendChild(gRenderer.domElement);
 
 init();
@@ -20,11 +24,10 @@ async function init() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     gScene.add(ambientLight);
     
-    gCamera.position.set(0, 3, 10);
-    
-    
     const gltf = await Utils.loadModel('ac_coa.gltf');
+    // const gltf = await Utils.loadModel('fly-2actions.gltf');
     const model = gltf.scene;
+    model.position.y = -3;
 
     const material = new THREE.MeshBasicMaterial();
     material.alphaTest = 0.5;
@@ -65,6 +68,7 @@ function initAnimationMixer(gltf) {
     gAnimationMixer = new THREE.AnimationMixer(gltf.scene);
 
     const walkClip = THREE.AnimationClip.findByName(gltf.animations, 'walk');
+    // const walkClip = THREE.AnimationClip.findByName(gltf.animations, 'ArmatureAction');
     
     gAnimationMixer.clipAction(walkClip).play();
 }
